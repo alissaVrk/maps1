@@ -2,13 +2,13 @@
 import React, { Component } from "react";
 import './App.css'
 import DbShit from './components/DbShit'
-import TomTomMap from './components/tom-tom-map/TomTomMap'
+import Map from './components/map/Map'
 
 class App extends Component {
   render() {
     return <div>
-    <DbShit></DbShit>
-    <TomTomMap></TomTomMap>
+    <DbShit key='shit'></DbShit>
+    <Map key='map'></Map>
   </div>
   }
 }

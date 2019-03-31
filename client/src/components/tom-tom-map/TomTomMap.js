@@ -6,7 +6,9 @@ function TomTomMap(props) {
     const mapEl = React.useRef(null)
 
     React.useEffect(() => {
+        console.log(props.setTomTom, 'a')
         initTomTom().then(tomtom => {
+            console.log(props.setTomTom, 'b')
             if (props.setTomTom) {
                 props.setTomTom(tomtom)
             }
@@ -30,7 +32,7 @@ function TomTomMap(props) {
         })
     }, [])
 
-    return <div id='map' ref={mapEl}>
+    return <div id='map' key='tmap' ref={mapEl}>
         {props.panel}
     </div>
 

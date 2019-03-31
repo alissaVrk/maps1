@@ -33,6 +33,36 @@ function getApi(){
             return panelApi
         },
 
+        fuzzySearch: function() {
+            let query = null
+            let isFirstResultOnly = false
+            let res = null
+            const search = {
+                query: q => {
+                    query = q
+                    return search
+                },
+                bestResult: (isBase) => {
+                    isFirstResultOnly = isBase
+                    return search
+                },
+                go: () => {
+                    const baseResult = query.split(' ').map(str => parseFloat(str))
+                    if (isFirstResultOnly) {
+                        res = {position: {lat: baseResult[0], lon: baseResult[1]}}
+                    } else {
+                        res = [baseResult]
+                        res.push({position: {lat: baseResult[0] + 10, lon: baseResult[1] + 10}})
+                    }
+                    
+                    return search
+                },
+                then: fn => fn(res)
+            }
+
+            return search
+        },
+
         getTestState: function () {
             return state
         }

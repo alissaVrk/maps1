@@ -1,12 +1,14 @@
 
 
-export function searchForPoint(addr) {
-    //TODO: find a better place to take the API from
-    return window.tomtom.fuzzySearch()
+export function searchForPoint(tomtom, addr) {
+    if (!addr) {
+        return null
+    }
+    return tomtom.fuzzySearch()
         .bestResult(true)
         .query(addr)
         .go()
-        .then(res => {console.log('RERERE', res); return res})
+        .then(res => [res.position.lat, res.position.lon])
 }
 
 

@@ -7,6 +7,9 @@ export default function Map(props){
         console.log(from, to)
     }
 
-    const searchPanel = <SearchPanel onSubmitSearch={searchRoutes} id='popup'></SearchPanel>
-    return <TomTomMap panel={searchPanel} panelId='popup'></TomTomMap>
+    const [tomtom, setTomTom] = React.useState(null)
+
+    const panelId = 'popup'
+    const searchPanel = <SearchPanel onSubmitSearch={searchRoutes} id={panelId} tomtom={tomtom}></SearchPanel>
+    return <TomTomMap panel={searchPanel} panelId={panelId} setTomTom={setTomTom}></TomTomMap>
 }
