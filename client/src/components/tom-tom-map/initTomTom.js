@@ -5,9 +5,9 @@ export default function () {
         script.async = true;
 
         return new Promise(resolve => {
-            script.onload(() => {
+            script.onload = () => {
                 resolve(window.tomtom)
-            })
+            }
         })
             .then(tomtom => {
                 tomtom.key('y1DwPQ2fIfb58vST3GnjFugR2ttyEiGS')

@@ -1,25 +1,46 @@
-const api =  {
-    L: {
-        map: function(id, options) {
-            return document.getElementById(id)
-        }
-    },
+function getApi(){
+    const state = {}
 
-    controlPanel: function(options) {
-        const panelApi = {
-            addTo: function(domElement){
-                return panelApi
-            },
-            addContent: function(domElement){
-                return panelApi
+    return {
+        L: {
+            map: function(id, options) {
+                state.map = {
+                    id: 'map',
+                    options
+                }
+                return state.map
             }
+        },
+    
+        controlPanel: function(options) {
+            state.panel = {
+                options
+            }
+            const panelApi = {
+                addTo: function(domElement){
+                    state.panel.parent = {
+                        el: domElement //what we returned as map
+                    }
+                    return panelApi
+                },
+                addContent: function(domElement){
+                    state.panel.content = {
+                        el: domElement
+                    }
+                    return panelApi
+                }
+            }
+            return panelApi
+        },
+
+        getTestState: function () {
+            return state
         }
-        return panelApi
     }
 }
 
 export default function() {
     return {
-        then: fn => fn(api)
+        then: fn => fn(getApi())
     }
 }

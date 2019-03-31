@@ -1,34 +1,16 @@
 import React from 'react'
 import initTomTom from './initTomTom'
 
-class TomTomMap extends React.Component {
-    constructor(props) {
-        super(props)
-        this.fromInput = React.createRef()
-        this.toInput = React.createRef()
-        this.searchForRoute = this.searchForRoute.bind(this)
-    }
+function TomTomMap(props) {
 
-    searchForRoute() {
-        const fromQuery = this.fromInput.current.value
-        const toQuery = this.toInput.current.value
-        const fromPoint = []
-        this.props.actions.setFrom()
-        this.props.actions.findRoutes(fromQuery, toQuery)
-    }
+    const mapEl = React.useRef(null)
 
-    render() {
-        return <div id='map'>
-            <form id='popup' onSubmit={this.searchForRoute}>
-                <label>From: <input type='text' ref={this.fromInput}></input></label>
-                <label>To: <input type='text' ref={this.toInput}></input></label>
-                <input type='submit' value='Get Routes'></input>
-            </form>
-        </div>
-    }
-
-    componentDidMount() {
+    React.useEffect(() => {
         initTomTom().then(tomtom => {
+            if (props.setTomTom) {
+                props.setTomTom(tomtom)
+            }
+
             const map = tomtom.L.map('map', {
                 source: 'vector',
                 center: [37.769167, -122.478468],
@@ -36,16 +18,22 @@ class TomTomMap extends React.Component {
                 zoom: 15
             })
 
-            tomtom.controlPanel({
-                position: 'topright',
-                collapsed: false,
-                close: null
-            })
-                .addTo(map)
-                .addContent(document.getElementById('popup'))
+            if (props.panel) {
+                tomtom.controlPanel({
+                    position: 'topright',
+                    collapsed: false,
+                    close: null
+                })
+                    .addTo(map)
+                    .addContent(mapEl.current.querySelector(`#${props.panelId}`))
+            }
         })
-        
-    }
+    }, [])
+
+    return <div id='map' ref={mapEl}>
+        {props.panel}
+    </div>
+
 }
 
 export default TomTomMap
