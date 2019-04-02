@@ -1,31 +1,55 @@
 import TomTomMap from './TomTomMap'
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { render } from 'react-testing-library';
+import defer from 'lodash/defer'
+import initTomTom from './initTomTom'
 
 jest.mock('./initTomTom')
+jest.mock('../hooks')
 
 describe('TomTomMap', () => {
-    function renderMap(parent, props){
+    function renderMap(props){
         return new Promise(resolve => {
+            let rendered
+
             const setTomTom = tomtom => {
-                resolve(tomtom.getTestState())
+                const state = tomtom.getTestState()
+                defer(() => {
+                    rendered.rerender(<TomTomMap tomtom={tomtom} setTomTom={() => {}} {...props}/>) //this is not good, it calls the onMount again
+                    state.parent = rendered.container
+
+                    resolve(state)
+                })
             }
-            ReactDOM.render(<TomTomMap setTomTom={setTomTom} {...props}/>, parent)
+
+            rendered = render(<TomTomMap setTomTom={setTomTom} {...props}/>)
         })
     }
     it('renders without crashing', async () => {
-        const div = document.createElement('div');
-        const tState = await renderMap(div)
+        const tState = await renderMap()
         expect(tState.map.id).toEqual('map')
         expect(tState.panel).toBeUndefined()
     })
 
+    it('should render with tomtom given in props', async () => {
+        const tomtom = await initTomTom()
+        render(<TomTomMap setTomTom={() => {}} tomtom={tomtom}/>)
+        expect(tomtom.getTestState().map.id).toEqual('map')
+    })
+
     it('should render passed panel on map', async () => {
-        const div = document.createElement('div');
         const panelId = 'myTestPanel'
         const panel = <div id={panelId}></div>
-        const tState = await renderMap(div, {panel, panelId})
+        const tState = await renderMap({panel, panelId})
         expect(tState.panel.parent.el.id).toEqual('map')
         expect(tState.panel.content.el.id).toEqual(panelId)
     })
+
+    it('should render markers', async () => {
+        const tState = await renderMap({fromPt: [2, 3]})
+        
+        expect(tState.markers.layers).toEqual([[2, 3]])
+        expect(tState.markers.parent.id).toEqual('map')
+    })
+   
 })

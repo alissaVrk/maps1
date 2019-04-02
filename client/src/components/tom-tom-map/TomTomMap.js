@@ -1,36 +1,60 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import initTomTom from './initTomTom'
+import {wrapAsync} from '../hooks'
 
 function TomTomMap(props) {
-
+    const map = React.useRef(null)
     const mapEl = React.useRef(null)
+    const markersGroup = React.useRef(null)
+
 
     React.useEffect(() => {
-        console.log(props.setTomTom, 'a')
-        initTomTom().then(tomtom => {
-            console.log(props.setTomTom, 'b')
-            if (props.setTomTom) {
-                props.setTomTom(tomtom)
-            }
-
-            const map = tomtom.L.map('map', {
-                source: 'vector',
-                center: [37.769167, -122.478468],
-                basePath: '/sdk',
-                zoom: 15
-            })
-
-            if (props.panel) {
-                tomtom.controlPanel({
-                    position: 'topright',
-                    collapsed: false,
-                    close: null
-                })
-                    .addTo(map)
-                    .addContent(mapEl.current.querySelector(`#${props.panelId}`))
-            }
+        !props.tomtom && initTomTom().then(tomtom => {
+            wrapAsync(() => props.setTomTom(tomtom))
         })
     }, [])
+
+    //init map
+    React.useEffect(() => {
+        if (!props.tomtom) {
+            return
+        }
+        const tomtom = props.tomtom
+        map.current = tomtom.L.map('map', {
+            source: 'vector',
+            center: [37.769167, -122.478468],
+            basePath: '/sdk',
+            zoom: 15
+        })
+
+        if (props.panel) {
+            tomtom.controlPanel({
+                position: 'topright',
+                collapsed: false,
+                close: null
+            })
+                .addTo(map.current)
+                .addContent(mapEl.current.querySelector(`#${props.panelId}`))
+        }
+
+        markersGroup.current = new tomtom.L.TomTomMarkersLayer().addTo(map.current)
+    }, [props.tomtom])
+
+    //paint markers
+    React.useEffect(() => {
+        if (!props.tomtom) {
+            return
+        }
+
+        markersGroup.current.clearLayers()
+        if (props.fromPt) {
+            markersGroup.current.setMarkersData([props.fromPt])
+                .addMarkers()
+            map.current.fitBounds(markersGroup.current.getBounds())
+        }
+
+    }, [props.tomtom, props.fromPt])
 
     return <div id='map' key='tmap' ref={mapEl}>
         {props.panel}
@@ -38,4 +62,11 @@ function TomTomMap(props) {
 
 }
 
+TomTomMap.propTypes = {
+    fromPt: PropTypes.arrayOf(PropTypes.number),
+    tomtom: PropTypes.object,
+    setTomTom: PropTypes.func.isRequired,
+    panel: PropTypes.any,
+    panelId: PropTypes.string
+}
 export default TomTomMap

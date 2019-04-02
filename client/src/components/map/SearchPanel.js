@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import {searchForPoint} from '../../store/tomtom/search'
+import {wrapAsync} from '../hooks'
 
 export default function SearchPanel(props){
 
@@ -14,7 +15,7 @@ export default function SearchPanel(props){
             searchForPoint(props.tomtom, fromQuery),
             searchForPoint(props.tomtom, toQuery)
         ])
-        .then(([fromPt, toPt]) => props.onSubmitSearch(fromPt, toPt))
+        .then(([fromPt, toPt]) => wrapAsync(() => props.onSubmitSearch(fromPt, toPt)))
         
         event.preventDefault()
     }
@@ -28,5 +29,5 @@ export default function SearchPanel(props){
 
 SearchPanel.propTypes = {
     onSubmitSearch: PropTypes.func.isRequired,
-    tomtom: PropTypes.object
+    tomtom: PropTypes.object.isRequired
 }

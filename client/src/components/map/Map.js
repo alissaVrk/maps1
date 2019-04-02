@@ -3,13 +3,31 @@ import TomTomMap from '../tom-tom-map/TomTomMap'
 import SearchPanel from './SearchPanel'
 
 export default function Map(props){
+    const [tomtom, setTomTom] = React.useState(null)
+    const [fromPt, setFromPt] = React.useState(null)
+
     function searchRoutes(from, to){
-        console.log(from, to)
+        setFromPt(from)
     }
 
-    const [tomtom, setTomTom] = React.useState(null)
+    function onInitTomTom(tomtom) {
+        setTomTom(tomtom)
+    }
+
+    //this is for tests..
+    React.useEffect(() => {
+        if (!tomtom && props.tomtom) {
+            setTomTom(props.tomtom)
+        }
+    }, [])
 
     const panelId = 'popup'
-    const searchPanel = <SearchPanel onSubmitSearch={searchRoutes} id={panelId} tomtom={tomtom}></SearchPanel>
-    return <TomTomMap panel={searchPanel} panelId={panelId} setTomTom={setTomTom}></TomTomMap>
+    const searchPanel = tomtom && <SearchPanel onSubmitSearch={searchRoutes} id={panelId} tomtom={tomtom}></SearchPanel>
+    return <TomTomMap 
+                panel={searchPanel} 
+                panelId={panelId} 
+                setTomTom={onInitTomTom}
+                tomtom={tomtom}
+                fromPt={fromPt}
+            ></TomTomMap>
 }

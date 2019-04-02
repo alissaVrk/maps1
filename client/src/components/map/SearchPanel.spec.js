@@ -4,19 +4,18 @@ import { render, cleanup, fireEvent } from 'react-testing-library';
 import initTomTom from '../tom-tom-map/initTomTom'
 
 jest.mock('../tom-tom-map/initTomTom')
-
+jest.mock('../hooks')
 
 describe('SearchPanel', () => {
     let tomtom
-    beforeEach(() => {
-        initTomTom().then(_tomtom => {tomtom = _tomtom})
+    beforeEach(async () => {
+        tomtom = await initTomTom();
     })
 
     afterEach(cleanup)
 
     it('renders without crashing', () => {
-        const {container} = render(<SearchPanel onSubmitSearch={() => {}}/>)
-        console.log(container.outerHTML)
+        render(<SearchPanel onSubmitSearch={() => {}} tomtom={tomtom}/>)
     })
 
     it('should call the callback with the pts on map', done => {

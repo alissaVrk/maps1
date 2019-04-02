@@ -1,14 +1,54 @@
+import { act } from "react-testing-library";
+import debounce from 'lodash/debounce' 
+
+
 function getApi(){
     const state = {}
+    let cbs = []
+    const stateChanged = debounce(() => {
+        cbs.forEach(cb => cb())
+        cbs = []
+    }, 2)
 
     return {
         L: {
             map: function(id, options) {
                 state.map = {
                     id: 'map',
-                    options
+                    options,
+                    fitBounds: function(){
+
+                    }
                 }
+                stateChanged()
                 return state.map
+            },
+            TomTomMarkersLayer: class {
+                constructor() {
+                    state.markers = {layers: [], __layers: []}
+                }
+                addTo(domElement) {
+                    state.markers.parent = domElement
+                    stateChanged()
+                    return this
+                }
+                clearLayers(){
+                    state.markers.layers = []
+                    state.markers.__layers = []
+                    stateChanged()
+                    return this
+                }
+                setMarkersData(pts){
+                    state.markers.__layers = state.markers.__layers.concat(pts) 
+                    stateChanged()
+                    return this
+                }
+                addMarkers(){
+                    state.markers.layers = state.markers.__layers
+                    stateChanged()
+                    return this
+                }
+                getBounds(){ }
             }
         },
     
@@ -21,12 +61,14 @@ function getApi(){
                     state.panel.parent = {
                         el: domElement //what we returned as map
                     }
+                    stateChanged()
                     return panelApi
                 },
                 addContent: function(domElement){
                     state.panel.content = {
                         el: domElement
                     }
+                    stateChanged()
                     return panelApi
                 }
             }
@@ -65,12 +107,16 @@ function getApi(){
 
         getTestState: function () {
             return state
+        },
+
+        waitForChange: function(cb) {
+            return new Promise(resolve => {cbs.push(resolve)})
         }
     }
 }
 
 export default function() {
     return {
-        then: fn => fn(getApi())
+        then: jest.fn(cb => act(() => {cb(getApi())}))
     }
 }
