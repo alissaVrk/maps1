@@ -1,12 +1,21 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { MutableRefObject } from 'react'
 import initTomTom from './initTomTom'
 import {wrapAsync} from '../hooks'
+import { TomTom, TomTomMarkersLayer } from './tomtom';
+import { PointTuple, Map } from 'leaflet';
 
-function TomTomMap(props) {
-    const map = React.useRef(null)
-    const mapEl = React.useRef(null)
-    const markersGroup = React.useRef(null)
+interface TomTomMapProps {
+    tomtom?: TomTom,
+    setTomTom: (tomtom: TomTom) => void,
+    panel?: JSX.Element,
+    panelId?: string,
+    markers?: Array<PointTuple>
+}
+
+function TomTomMap(props: TomTomMapProps) {
+    const map: MutableRefObject<Map> = React.useRef({} as Map)
+    const mapEl: MutableRefObject<HTMLDivElement> = React.useRef({} as HTMLDivElement)
+    const markersGroup: MutableRefObject<TomTomMarkersLayer> = React.useRef({} as TomTomMarkersLayer)
 
 
     React.useEffect(() => {
@@ -26,7 +35,7 @@ function TomTomMap(props) {
             center: [37.769167, -122.478468],
             basePath: '/sdk',
             zoom: 15
-        })
+        }) as Map
 
         if (props.panel) {
             tomtom.controlPanel({
@@ -59,14 +68,6 @@ function TomTomMap(props) {
     return <div id='map' key='tmap' ref={mapEl}>
         {props.panel}
     </div>
-
 }
 
-TomTomMap.propTypes = {
-    markers: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
-    tomtom: PropTypes.object,
-    setTomTom: PropTypes.func.isRequired,
-    panel: PropTypes.any,
-    panelId: PropTypes.string
-}
 export default TomTomMap

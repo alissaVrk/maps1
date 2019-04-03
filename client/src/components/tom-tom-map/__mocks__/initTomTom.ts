@@ -1,22 +1,26 @@
 import { act } from "react-testing-library";
 import debounce from 'lodash/debounce' 
+import {TomTom, TomTomTestState, TomTomPoint} from '../tomtom'
+import { MapOptions, PointTuple } from "leaflet";
 
-
-function getApi(){
-    const state = {}
-    let cbs = []
+function getApi(): TomTom{
+    const state: TomTomTestState = {
+        markers: {layers: [], __layers: []}
+    }
+    let cbs: Array<() => void> = []
     const stateChanged = debounce(() => {
         cbs.forEach(cb => cb())
         cbs = []
     }, 2)
 
     return {
+        key: (key: string) => {},
         L: {
-            map: function(id, options) {
+            map: function(id: string, options: MapOptions) {
                 state.map = {
-                    id: 'map',
+                    id,
                     options,
-                    fitBounds: function(markers){
+                    fitBounds: function(markers: any){
                         if(markers && markers.length === 0) {
                             throw new Error('markers not valid')
                         }
@@ -26,10 +30,7 @@ function getApi(){
                 return state.map
             },
             TomTomMarkersLayer: class {
-                constructor() {
-                    state.markers = {layers: [], __layers: []}
-                }
-                addTo(domElement) {
+                addTo(domElement: any) {
                     state.markers.parent = domElement
                     stateChanged()
                     return this
@@ -40,7 +41,7 @@ function getApi(){
                     stateChanged()
                     return this
                 }
-                setMarkersData(pts){
+                setMarkersData(pts: Array<PointTuple>){
                     state.markers.__layers = state.markers.__layers.concat(pts) 
                     stateChanged()
                     return this
@@ -56,20 +57,20 @@ function getApi(){
             }
         },
     
-        controlPanel: function(options) {
+        controlPanel: function(options: any) {
             state.panel = {
                 options
             }
             const panelApi = {
-                addTo: function(domElement){
-                    state.panel.parent = {
+                addTo: function(domElement: any){
+                    state.panel!.parent = {
                         el: domElement //what we returned as map
                     }
                     stateChanged()
                     return panelApi
                 },
-                addContent: function(domElement){
-                    state.panel.content = {
+                addContent: function(domElement: any){
+                    state.panel!.content = {
                         el: domElement
                     }
                     stateChanged()
@@ -80,15 +81,15 @@ function getApi(){
         },
 
         fuzzySearch: function() {
-            let query = null
+            let query: string
             let isFirstResultOnly = false
-            let res = null
+            let res: TomTomPoint | Array<TomTomPoint>
             const search = {
-                query: q => {
+                query: (q: string) => {
                     query = q
                     return search
                 },
-                bestResult: (isBase) => {
+                bestResult: (isBase: boolean) => {
                     isFirstResultOnly = isBase
                     return search
                 },
@@ -97,13 +98,13 @@ function getApi(){
                     if (isFirstResultOnly) {
                         res = {position: {lat: baseResult[0], lon: baseResult[1]}}
                     } else {
-                        res = [baseResult]
+                        res = [{position: {lat: baseResult[0], lon: baseResult[1]}}]
                         res.push({position: {lat: baseResult[0] + 10, lon: baseResult[1] + 10}})
                     }
                     
                     return search
                 },
-                then: fn => fn(res)
+                then: (fn: (value: TomTomPoint | Array<TomTomPoint>) => any) => fn(res)
             }
 
             return search
@@ -113,13 +114,13 @@ function getApi(){
             return state
         },
 
-        waitForChange: function(cb) {
+        waitForChange: function() {
             return new Promise(resolve => {cbs.push(resolve)})
         }
     }
 }
 
-export default function() {
+export default function(){
     return {
         then: jest.fn(cb => act(() => {cb(getApi())}))
     }

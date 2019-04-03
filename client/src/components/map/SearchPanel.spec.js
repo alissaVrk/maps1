@@ -41,7 +41,7 @@ describe('SearchPanel', () => {
     it('should call the callback with null if no query passed', done => {
         const searchFn = jest.fn().mockImplementation((from, to) => {
             expect(from).toEqual([1, 2])
-            expect(to).toEqual(null)
+            expect(to).toEqual(undefined)
             done()
         })
         

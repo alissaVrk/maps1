@@ -8,12 +8,18 @@ jest.mock('./initTomTom')
 jest.mock('../hooks')
 
 describe('TomTomMap', () => {
+    /**
+     * 
+     * @param {*} props
+     * @returns Promise<TomTomTestState>  
+     */
     function renderMap(props){
         return new Promise(resolve => {
             let rendered
 
             const setTomTom = tomtom => {
                 const state = tomtom.getTestState()
+                
                 defer(() => {
                     rendered.rerender(<TomTomMap tomtom={tomtom} setTomTom={() => {}} {...props}/>) //this is not good, it calls the onMount again
                     state.parent = rendered.container

@@ -2,18 +2,24 @@ import React from 'react'
 import TomTomMap from '../tom-tom-map/TomTomMap'
 import SearchPanel from './SearchPanel'
 import compact from 'lodash/compact'
+import { PointTuple } from 'leaflet';
+import { TomTom } from '../tom-tom-map/tomtom';
 
-export default function Map(props){
-    const [tomtom, setTomTom] = React.useState(null)
-    const [fromPt, setFromPt] = React.useState(null)
-    const [toPt, setToPt] = React.useState(null)
+interface MapProps {
+    tomtom: TomTom
+}
 
-    function searchRoutes(from, to){
+export default function Map(props: MapProps){
+    const [tomtom, setTomTom] = React.useState<TomTom|undefined>()
+    const [fromPt, setFromPt] = React.useState<PointTuple|undefined>()
+    const [toPt, setToPt] = React.useState<PointTuple|undefined>()
+
+    function searchRoutes(from: PointTuple, to: PointTuple){
         setFromPt(from)
         setToPt(to)
     }
 
-    function onInitTomTom(tomtom) {
+    function onInitTomTom(tomtom: TomTom) {
         setTomTom(tomtom)
     }
 
