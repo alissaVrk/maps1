@@ -2,6 +2,7 @@ import SearchPanel from './SearchPanel'
 import React from 'react'
 import { render, cleanup, fireEvent } from 'react-testing-library';
 import initTomTom from '../tom-tom-map/initTomTom'
+import {getFromInput, getToInput, getSubmitSearch} from '../testUtils'
 
 jest.mock('../tom-tom-map/initTomTom')
 jest.mock('../hooks')
@@ -25,10 +26,10 @@ describe('SearchPanel', () => {
             done()
         })
         
-        const {getByLabelText, getByDisplayValue} = render(<SearchPanel onSubmitSearch={searchFn} tomtom={tomtom}/>)
-        const fromInput = getByLabelText('from', {exact: false})
-        const toInput = getByLabelText('to', {exact: false})
-        const submitBtn = getByDisplayValue('routes', {exact: false})
+        const renderResult = render(<SearchPanel onSubmitSearch={searchFn} tomtom={tomtom}/>)
+        const fromInput = getFromInput(renderResult)
+        const toInput = getToInput(renderResult)
+        const submitBtn = getSubmitSearch(renderResult)
 
         fireEvent.change(fromInput, {target: {value: '1 2'}})
         fireEvent.change(toInput, {target: {value: '5 7'}})
@@ -45,9 +46,9 @@ describe('SearchPanel', () => {
             done()
         })
         
-        const {getByLabelText, getByDisplayValue} = render(<SearchPanel onSubmitSearch={searchFn} tomtom={tomtom}/>)
-        const fromInput = getByLabelText('from', {exact: false})
-        const submitBtn = getByDisplayValue('routes', {exact: false})
+        const renderResult = render(<SearchPanel onSubmitSearch={searchFn} tomtom={tomtom}/>)
+        const fromInput = getFromInput(renderResult)
+        const submitBtn = getSubmitSearch(renderResult)
 
         fireEvent.change(fromInput, {target: {value: '1 2'}})
 

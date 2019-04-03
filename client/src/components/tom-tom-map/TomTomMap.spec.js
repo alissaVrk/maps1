@@ -8,11 +8,6 @@ jest.mock('./initTomTom')
 jest.mock('../hooks')
 
 describe('TomTomMap', () => {
-    /**
-     * 
-     * @param {*} props
-     * @returns Promise<TomTomTestState>  
-     */
     function renderMap(props){
         return new Promise(resolve => {
             let rendered
@@ -32,6 +27,7 @@ describe('TomTomMap', () => {
         })
     }
     it('renders without crashing', async () => {
+        /** @type TomTomTestState  */
         const tState = await renderMap()
         expect(tState.map.id).toEqual('map')
         expect(tState.panel).toBeUndefined()
