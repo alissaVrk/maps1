@@ -48,13 +48,13 @@ function TomTomMap(props) {
         }
 
         markersGroup.current.clearLayers()
-        if (props.fromPt) {
-            markersGroup.current.setMarkersData([props.fromPt])
+        if (props.markers && props.markers.length > 0) {
+            markersGroup.current.setMarkersData(props.markers)
                 .addMarkers()
             map.current.fitBounds(markersGroup.current.getBounds())
         }
 
-    }, [props.tomtom, props.fromPt])
+    }, [props.tomtom, props.markers])
 
     return <div id='map' key='tmap' ref={mapEl}>
         {props.panel}
@@ -63,7 +63,7 @@ function TomTomMap(props) {
 }
 
 TomTomMap.propTypes = {
-    fromPt: PropTypes.arrayOf(PropTypes.number),
+    markers: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
     tomtom: PropTypes.object,
     setTomTom: PropTypes.func.isRequired,
     panel: PropTypes.any,

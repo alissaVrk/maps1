@@ -46,9 +46,9 @@ describe('TomTomMap', () => {
     })
 
     it('should render markers', async () => {
-        const tState = await renderMap({fromPt: [2, 3]})
+        const tState = await renderMap({markers: [[2, 3], [6, 6]]})
         
-        expect(tState.markers.layers).toEqual([[2, 3]])
+        expect(tState.markers.layers).toEqual([[2, 3], [6, 6]])
         expect(tState.markers.parent.id).toEqual('map')
     })
    

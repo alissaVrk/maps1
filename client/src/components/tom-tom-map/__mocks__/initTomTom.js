@@ -16,8 +16,10 @@ function getApi(){
                 state.map = {
                     id: 'map',
                     options,
-                    fitBounds: function(){
-
+                    fitBounds: function(markers){
+                        if(markers && markers.length === 0) {
+                            throw new Error('markers not valid')
+                        }
                     }
                 }
                 stateChanged()
@@ -48,7 +50,9 @@ function getApi(){
                     stateChanged()
                     return this
                 }
-                getBounds(){ }
+                getBounds(){
+                    return state.markers.layers.map(l => 'bound')
+                 }
             }
         },
     

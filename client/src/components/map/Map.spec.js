@@ -35,7 +35,7 @@ describe('Map', () => {
 
             await tomtom.waitForChange()
 
-            expect(tomtom.getTestState().markers.layers).toEqual([[1, 2]])
+            expect(tomtom.getTestState().markers.layers).toEqual([[1, 2], [5, 7]])
         })
         
         it('should remove both markers', () => {
