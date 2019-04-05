@@ -1,3 +1,4 @@
+import { FeatureCollection, Feature, GeoJson, LineString, GeoJsonProperties } from 'geojson';
 import * as Leaflet from 'leaflet'
 
 interface TomTomElementApi {
@@ -18,22 +19,32 @@ interface TomTomSearchApi extends PromiseLike<TomTomPoint> {
     go: () => TomTomSearchApi
 }
 
-interface TomTomTestState {
-    map?: {
-        id: string,
-        options?: object,
-        fitBounds: function
-    },
-    markers: {
-        layers: Array<Leaflet.PointTuple>
-        private __layers: Array<Leaflet.PointTuple>,
-        parent?: object,
-    },
-    panel?: {
-        options?: object,
-        parent?: object,
-        content?: object
-    }
+interface TomTomRoute extends GeoJSON {
+    
+}
+interface TomTomSegmentSummery {
+    lengthInMeters: number,
+    travelTimeInSeconds: number,
+    trafficDelayInSeconds: number,
+    departureTime: Date,
+    arrivalTime: Date
+}
+interface TomTomRouteProperties extends GeoJsonProperties {
+    summary: TomTomSegmentSummery,
+    sections: Array<{
+        startPointIndex: number, 
+        endPointIndex: number,
+        sectionType: string, //'TRAVEL_MODE'
+        travelMode: string //basically an enum 
+    }>,
+    segmentSummary: TomTomSegmentSummery[]
+}
+
+
+interface TomTomRoutingApi extends PromiseLike<FeatureCollection<LineString, TomTomRouteProperties>> {
+    locations: (pts: Array<Leaflet.PointTuple>) => TomTomRoutingApi
+    maxAlternatives: (num: number) => TomTomRoutingApi
+    go: () => TomTomRoutingApi
 }
 interface TomTomMapOptions extends Leaflet.MapOptions {
     source: string,
@@ -49,12 +60,14 @@ interface TomTomMarkersLayer {
 
 interface TomTom {
     L: {
-        map: (id: string, options: TomTomMapOptions) => Leaflet.Map | object,
-        TomTomMarkersLayer: new () => TomTomMarkersLayer
+        map: (id: string, options: TomTomMapOptions) => Leaflet.Map,
+        TomTomMarkersLayer: new () => TomTomMarkersLayer,
+        geoJson: (json: FeatureCollection, options?: Leaflet.GeoJSONOptions<Feature>) => Leaflet.Layer
     },
     key: (key: string) => void,
     controlPanel: (options: object) => TomTomElementApi,
     fuzzySearch: () => TomTomSearchApi,
+    routing: () => TomTomRoutingApi,
     getTestState: () => TomTomTestState, //mine - for test only
     waitForChange: () => Promise //mine - for test only 
 }

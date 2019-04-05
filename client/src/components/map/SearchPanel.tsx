@@ -6,6 +6,7 @@ import { PointTuple } from 'leaflet';
 
 interface SearchPanelProps {
     onSubmitSearch(fromPt?: PointTuple, toPt?: PointTuple): void,
+    onGetRoutes(): void,
     tomtom: TomTom,
     id: string
 }
@@ -30,6 +31,7 @@ export default function SearchPanel(props: SearchPanelProps){
     return <form id={props.id} onSubmit={onSubmit} key='panel'>
                 <label>From: <input type='text' ref={fromInput} key='from'></input></label>
                 <label>To: <input type='text' ref={toInput} key='to'></input></label>
-                <input type='submit' value='Get Routes' key='submitSearch'></input>
+                <input type='submit' value='Search' key='submitSearch' style={{width: '50%'}} />
+                <input type='button' value='Get Routes' key='routes' onClick={props.onGetRoutes} style={{width: '50%'}}/>
             </form>
 }

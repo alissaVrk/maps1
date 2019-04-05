@@ -9,5 +9,9 @@ export function getToInput(rendered: RenderResult){
 }
 
 export function getSubmitSearch(rendered: RenderResult){
-    return rendered.getByDisplayValue('route', {exact: false})
+    return rendered.getByDisplayValue('search', {exact: false})
+}
+
+export function getSearchForRoutes(rendered: RenderResult){
+    return rendered.getByDisplayValue('routes', {exact: false})
 }

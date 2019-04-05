@@ -1,22 +1,23 @@
 import { act } from "react-testing-library";
-import debounce from 'lodash/debounce' 
-import {TomTom, TomTomTestState, TomTomPoint} from '../tomtom'
-import { MapOptions, PointTuple } from "leaflet";
+import debounce from 'lodash/debounce'
+import assign from 'lodash/assign' 
+import range from 'lodash/range'
+import { PointTuple } from "leaflet";
 
-function getApi(): TomTom{
-    const state: TomTomTestState = {
+function getApi(){
+    let state: any = {
         markers: {layers: [], __layers: []}
     }
     let cbs: Array<() => void> = []
     const stateChanged = debounce(() => {
         cbs.forEach(cb => cb())
         cbs = []
-    }, 2)
+    })
 
     return {
         key: (key: string) => {},
         L: {
-            map: function(id: string, options: MapOptions) {
+            map: function(id: string, options: any) {
                 state.map = {
                     id,
                     options,
@@ -52,8 +53,30 @@ function getApi(): TomTom{
                     return this
                 }
                 getBounds(){
-                    return state.markers.layers.map(l => 'bound')
+                    return state.markers.layers.map(() => 'bound')
                  }
+            },
+            geoJson: (json: any, options: any) => {
+                state.routes = {}
+                
+                const GeoJSON = {
+                    addTo(element: any) {
+                        state.routes.parent = element
+                        if (options && options.style) {
+                            state.routes.layers = json.features.map((feature: any) => assign(options.style(feature), feature))
+                        }
+
+                        stateChanged()
+                        return GeoJSON
+                    },
+                    removeFrom(element: any) {
+                        if (state.routes && element.id === state.routes.parent.id) {
+                            delete state.routes
+                        }
+                    }
+                }
+                return GeoJSON
+            
             }
         },
     
@@ -63,14 +86,14 @@ function getApi(): TomTom{
             }
             const panelApi = {
                 addTo: function(domElement: any){
-                    state.panel!.parent = {
+                    state.panel.parent = {
                         el: domElement //what we returned as map
                     }
                     stateChanged()
                     return panelApi
                 },
                 addContent: function(domElement: any){
-                    state.panel!.content = {
+                    state.panel.content = {
                         el: domElement
                     }
                     stateChanged()
@@ -83,7 +106,7 @@ function getApi(): TomTom{
         fuzzySearch: function() {
             let query: string
             let isFirstResultOnly = false
-            let res: TomTomPoint | Array<TomTomPoint>
+            let res: any
             const search = {
                 query: (q: string) => {
                     query = q
@@ -104,10 +127,36 @@ function getApi(): TomTom{
                     
                     return search
                 },
-                then: (fn: (value: TomTomPoint | Array<TomTomPoint>) => any) => fn(res)
+                then: (fn: any) => fn(res)
             }
 
             return search
+        },
+
+        routing: () => {
+            let res = {}
+            let pts: any
+            let alts = 0
+            const routingApi = {
+                locations: (_pts: any) => {
+                    pts = _pts 
+                    return routingApi 
+                },
+                maxAlternatives: (num: number) => {
+                    alts = num
+                    return routingApi
+                },
+                go: () => {
+                    res = {
+                        features: range(alts + 1).map(index => ({
+                            geometry: pts
+                        }))
+                    } 
+                    return routingApi 
+                },
+                then: (fn: any) => Promise.resolve().then(() => fn(res))
+            }
+            return routingApi
         },
 
         getTestState: function () {
@@ -115,7 +164,10 @@ function getApi(): TomTom{
         },
 
         waitForChange: function() {
-            return new Promise(resolve => {cbs.push(resolve)})
+            return new Promise(resolve => {
+                cbs.push(resolve)
+                setTimeout(resolve, 10)
+            })
         }
     }
 }

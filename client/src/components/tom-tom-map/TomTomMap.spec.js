@@ -53,5 +53,12 @@ describe('TomTomMap', () => {
         expect(tState.markers.layers).toEqual([[2, 3], [6, 6]])
         expect(tState.markers.parent.id).toEqual('map')
     })
+
+    it('should render routes with different colors', async() => {
+        const tState = await renderMap({routes: {features: [{id: '1'}, {id: '2'}]}})
+
+        expect(tState.routes.layers).toEqual([{id: '1', color: 'red'}, {id: '2', color: 'blue'}])
+        expect(tState.routes.parent.id).toEqual('map')
+    })
    
 })
