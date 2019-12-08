@@ -22,9 +22,13 @@ export function searchForRoutes(tomtom: TomTom, from: PointTuple, to: PointTuple
             res.features.forEach(feature => {
                 feature.id = uniqueId('feature-')
             })
+            console.log(res)
             return res
         })
 }
 
+export function searchPOIs(area){
+    
+}
 
 
